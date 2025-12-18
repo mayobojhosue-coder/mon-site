@@ -16,7 +16,7 @@ st.markdown("""
 }
 
 textarea {
-    color: black !important;
+    color: white !important;
     font-size: 15px;
 }
 
