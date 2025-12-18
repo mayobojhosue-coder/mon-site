@@ -71,7 +71,7 @@ if not st.session_state.entree:
     st.stop()
 
 # ==================================================
-# 🔐 ACCÈS ADMIN (MODIFS SEULEMENT)
+# 🔐 ACCÈS ADMIN
 # ==================================================
 with st.expander("🔐 Zone administrateur (modifications)"):
     code = st.text_input("Code admin", type="password")
@@ -85,18 +85,19 @@ with st.expander("🔐 Zone administrateur (modifications)"):
 # BASE DE DONNÉES
 # ==================================================
 bdd = {
-    "Respo": ["Gricha", "Rodrigue"],
+    "Respo": ["Gricha", "Rodrigue", "Yeni"],
     "Soprano": [
         "Chariette", "Ruth", "Rebeca", "Emmanuella",
-        "Irssa", "Maman Angèle", "Alice"
+        "Irssa", "Maman Angèle"
     ],
     "Altos": [
         "Radegonde", "Emy-Grâce", "Nell", "Tessa",
-        "Andréa", "Lydia", "Amandine", "Stessy", "Nady-Grâce"
+        "Andréa", "Lydia", "Amandine", "Stessy",
+        "Nady-Grâce", "Alice", "Dalie", "Clara"
     ],
     "Tenors": [
         "Jaurès", "Christ", "Gloire", "Jadel",
-        "Harold", "Christ Joël", "Jordan"
+        "Harold", "Christian Joël", "Jordan"
     ],
     "Musiciens": [
         "Jaifry", "Lionnel", "Esdras",
@@ -106,12 +107,13 @@ bdd = {
 }
 
 # ==================================================
-# SEXE (SULLYVAN = FEMME PAR DÉFAUT)
+# SEXE
 # ==================================================
 sexe = {
     "Gricha": "H", "Rodrigue": "H", "Jordan": "H",
     "Jaifry": "H", "Lionnel": "H", "Esdras": "H",
     "Thierry": "H", "Joyce": "H", "Emmanuel": "H",
+    "Jadel": "H", "Christian Joël": "H"
 }
 
 # ==================================================
