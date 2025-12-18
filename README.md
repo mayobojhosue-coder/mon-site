@@ -71,7 +71,7 @@ if not st.session_state.entree:
     st.stop()
 
 # ==================================================
-# 🔐 ACCÈS ADMIN (MODIFS SEULEMENT)
+# 🔐 ACCÈS ADMIN
 # ==================================================
 with st.expander("🔐 Zone administrateur (modifications)"):
     code = st.text_input("Code admin", type="password")
@@ -82,34 +82,38 @@ with st.expander("🔐 Zone administrateur (modifications)"):
         st.error("Code incorrect")
 
 # ==================================================
-# BASE DE DONNÉES (PROTÉGÉE)
+# BASE DE DONNÉES (CORRIGÉE)
 # ==================================================
 bdd = {
-    "Respo": ["Gricha", "Rodrigue"],
+    "Respo": ["Gricha", "Rodrigue", "Yeni"],
     "Soprano": [
         "Chariette", "Ruth", "Rebeca", "Emmanuella",
-        "Irssa", "Maman Angèle", "Alice"
+        "Irssa", "Maman Angèle"
     ],
     "Altos": [
         "Radegonde", "Emy-Grâce", "Nell", "Tessa",
-        "Andréa", "Lydia", "Amandine", "Stessy", "Nady-Grâce"
+        "Andréa", "Lydia", "Amandine", "Stessy",
+        "Nady-Grâce", "Alice", "Dalie", "Clara"
     ],
     "Tenors": [
         "Jaurès", "Christ", "Gloire", "Jadel",
-        "Harold", "Christ Joël", "Jordan"
+        "Harold", "Christian Joël", "Jordan"
     ],
     "Musiciens": [
         "Jaifry", "Lionnel", "Esdras",
-        "Laure-Naïké", "Thierry", "Joyce",
-        "Sullyvan"
+        "Laure-Naïké", "Thierry", "Joyce"
     ],
-    "Son": ["Emmanuel"],
+    "Son": ["Emmanuel", "Sullyvan"],
 }
 
+# ==================================================
+# SEXE (SULLYVAN = FEMME PAR DÉFAUT)
+# ==================================================
 sexe = {
     "Gricha": "H", "Rodrigue": "H", "Jordan": "H",
     "Jaifry": "H", "Lionnel": "H", "Esdras": "H",
     "Thierry": "H", "Joyce": "H", "Emmanuel": "H",
+    "Jadel": "H", "Christian Joël": "H"
 }
 
 # ==================================================
@@ -120,7 +124,7 @@ st.markdown(f"<p>Date : {date.today().strftime('%d/%m/%Y')}</p>", unsafe_allow_h
 st.markdown("---")
 
 # ==================================================
-# SÉLECTION DES PRÉSENTS (LIBRE)
+# SÉLECTION DES PRÉSENTS
 # ==================================================
 selection = {}
 
@@ -129,7 +133,7 @@ for pupitre, noms in bdd.items():
     selection[pupitre] = st.multiselect("", noms, key=pupitre)
 
 # ==================================================
-# VALIDATION (LIBRE)
+# VALIDATION + SAUVEGARDE
 # ==================================================
 if st.button("Valider la liste"):
 
@@ -157,9 +161,6 @@ if st.button("Valider la liste"):
     st.markdown(f"Hommes : {hommes}")
     st.markdown(f"Total : {len(presents)}")
 
-    # ======================
-    # TEXTE + SAUVEGARDE
-    # ======================
     texte = (
         f"Liste de présence – ROC\n"
         f"Date : {date.today().strftime('%d/%m/%Y')}\n\n"
@@ -189,3 +190,5 @@ if st.button("Valider la liste"):
         f.write(texte)
 
     st.text_area("📋 Liste finale (copiable)", texte, height=420)
+
+   
