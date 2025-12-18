@@ -1,2 +1,156 @@
-@@ -0,0 +1,85 @@import streamlit as st# =========================# ÉCRAN DE BIENVENUE (3s)# =========================st.markdown("""<style>#splash {    position: fixed;    top: 0;    left: 0;    width: 100%;    height: 100%;    background-color: black;    color: white;    z-index: 9999;    display: flex;    align-items: center;    justify-content: center;    font-size: 40px;    font-weight: bold;}</style><div id="splash">    Bienvenue sur BLOOM 🌸</div><script>setTimeout(function() {    var splash = document.getElementById("splash");    splash.style.display = "none";}, 3000);</script>""", unsafe_allow_html=True)# =========================# STYLE (BOUTON VERT)# =========================st.markdown("""<style>div.stButton > button {    background-color: #2ecc71;    color: white;    font-size: 16px;    height: 3em;    width: 100%;    border-radius: 10px;}</style>""", unsafe_allow_html=True)# =========================# LOGO# =========================st.image("logo.png", width=200)# =========================# TITRE# =========================st.title("Liste de présence BLOOM 🌸")# =========================# BASE DE DONNÉES FIXE# =========================garcons = [    "andré",    "arthur",    "aurel",    "darlick",    "iknan",    "jéremie",    "jhosue",    "alain emmanuel",    "karl emmanuel",    "stephen",    "yvan",    "evans","ighal"]filles = [    "angèele",    "camille",    "helena",    "joëlle",
-Collapse file‎pp.py‎Copy file name to clipboard+169-8Lines changed: 169 additions & 8 deletionsOriginal file line numberDiff line numberDiff line change@@ -1,10 +1,171 @@import streamlit as stfrom datetime import dateimport unicodedataimport timest.write("tu fais quoi?")if st.button("rien de grand"):    st.write("t'es juste posé..ok alors.")if st.button("je fais rien"):    st.write("okay okay.")reponse_perso=st.text_input("ou écris ce que tu fais:")if reponse_perso:    st.write("ah d'accord, tu :",reponse_pereso)# ======================# 🎨 DESIGN GLOBAL# ======================st.markdown("""<style>.stApp {    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);    color: white;    font-family: 'Segoe UI', sans-serif;}h1, h2, h3 {    color: #f1c40f;    text-align: center;}textarea {    border-radius: 10px !important;    border: 2px solid #f1c40f !important;}div.stButton > button {    background-color: #2ecc71;    color: black;    font-weight: bold;    border-radius: 12px;    padding: 10px 20px;    border: none;}</style>""", unsafe_allow_html=True)# ======================# 👋 MESSAGE DE BIENVENUE# ======================if "welcome_done" not in st.session_state:    st.session_state.welcome_done = Falseif not st.session_state.welcome_done:    st.markdown("""    <div style="        position: fixed;        top: 0; left: 0;        width: 100%;        height: 100%;        background-color: black;        display: flex;        align-items: center;        justify-content: center;        z-index: 9999;    ">        <h1 style="color:white; font-size:40px;">            Bienvenue sur BLOOM 🌸        </h1>    </div>    """, unsafe_allow_html=True)    time.sleep(3)    st.session_state.welcome_done = True    st.rerun()# ======================# 🧠 FONCTIONS# ======================def nettoyer(nom):    nom = nom.lower().strip()    nom = unicodedata.normalize("NFD", nom)    return "".join(c for c in nom if unicodedata.category(c) != "Mn")# ======================# 📅 DATE# ======================date_choisie = st.date_input("📅 Choisis la date", value=date.today())jour = date_choisie.weekday()date_affichage = date_choisie.strftime("%d/%m/%Y")if jour == 2:    titre = "Liste de présence BLOOM au MDP"elif jour == 5:    titre = "Liste de présence BLOOM – Réunion des jeunes"elif jour == 6:    titre = "Liste de présence BLOOM – Culte du dimanche"else:    titre = "Liste de présence BLOOM"st.title(titre)# ======================# 📦 BASE DE DONNÉES FIXE# ======================garcons = [    "André","Arthur","Aurel","Darlick","Iknan","Jéremie",    "Jhosue","Alain Emmanuel","Karl Emmanuel",    "Stephen","Yvan","Evans"]filles = [    "Angèle","Camille","Helena","Joëlle","Josée",    "Julyahana","Ketlyn","Maïva","Mariska","Romaine",    "Kenza","Ketsia","Chrismaëlla","Jade","Daliah","Méléa"]coachs = ["Noelvine", "Jean Junior", "Valerie"]# ======================# ✍️ SAISIE UTILISATEUR# ======================if "texte_presents" not in st.session_state:    st.session_state.texte_presents = ""st.session_state.texte_presents = st.text_area(    "✍️ Écris les noms des présents (un par ligne)",    st.session_state.texte_presents)# ======================# 🔘 BOUTONS# ======================col1, col2 = st.columns(2)with col1:    valider = st.button("Valider")with col2:    if st.button("Réinitialiser"):        st.session_state.texte_presents = ""        st.rerun()# ======================# 📋 TRAITEMENT# ======================if valider:    saisis = [nettoyer(n) for n in st.session_state.texte_presents.split("\n") if n.strip()]    def traiter(liste):        presents = [n for n in liste if nettoyer(n) in saisis]        absents = [n for n in liste if nettoyer(n) not in saisis]        return presents, absents    pg, ag = traiter(garcons)    pf, af = traiter(filles)    pc, ac = traiter(coachs)    liste_finale = (        titre.upper() + "\n"        + "=" * len(titre) + "\n"        + f"Date : {date_affichage}\n\n"        + "GARÇONS PRÉSENTS\n"        + "\n".join("✅ " + nom for nom in pg)        + "\n\nGARÇONS ABSENTS\n"        + "\n".join("❌ " + nom for nom in ag)        + "\n\nFILLES PRÉSENTES\n"        + "\n".join("✅ " + nom for nom in pf)        + "\n\nFILLES ABSENTES\n"        + "\n".join("❌ " + nom for nom in af)        + "\n\nCOACHS PRÉSENTS\n"        + "\n".join("✅ Coach " + nom for nom in pc)        + "\n\nCOACHS ABSENTS\n"        + "\n".join("❌ Coach " + nom for nom in ac)    )    st.subheader("Liste finale")    st.text_area("", liste_finale, height=500)
+import streamlit as st
+from datetime import date
+
+# ======================
+# CONFIG PAGE
+# ======================
+st.set_page_config(page_title="Bloom", layout="wide")
+
+# ======================
+# STYLE GLOBAL
+# ======================
+st.markdown("""
+<style>
+.stApp {
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+}
+
+textarea {
+    color: black !important;
+    font-size: 15px;
+}
+
+button {
+    background-color: orange !important;
+    color: white !important;
+    font-weight: bold !important;
+    border: none !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# ======================
+# ÉTAT INITIAL
+# ======================
+if "go" not in st.session_state:
+    st.session_state.go = False
+
+if "saisie" not in st.session_state:
+    st.session_state.saisie = ""
+
+# ======================
+# MESSAGE BIENVENUE
+# ======================
+if not st.session_state.go:
+    st.markdown(
+        "<h1 style='text-align:center;color:white;'>Bienvenue sur l'app Bloom</h1>",
+        unsafe_allow_html=True
+    )
+    if st.button("Entrer"):
+        st.session_state.go = True
+    # on AFFICHERA l'app au prochain rerun
+else:
+
+    # ======================
+    # BASE DES NOMS (FIXE)
+    # ======================
+    filles = {
+        "Angèle","Camille","Helena","Joëlle","Josée","Julyahana","Ketlyn","Maïva",
+        "Mariska","Romaine","Méléa","Kenza","Ketsia","Chrismaëlla","Jade","Daliah"
+    }
+
+    garcons = {
+        "Arthur","Alain Emmanuel","Jhosue","Stephen","Darlick","Jéremie",
+        "Iknan","Ighal","Yvan","Evans","André","Karl Emmanuel"
+    }
+
+    coachs = {
+        "Noelvine","Jean Junior","Valérie","Aurel"
+    }
+
+    # ======================
+    # TITRE SELON LE JOUR
+    # ======================
+    jour = date.today().weekday()
+    titres = {
+        2: "Liste de présence – MDP",
+        4: "Liste de présence – Réunion en ligne",
+        5: "Liste de présence – Réunion des jeunes",
+        6: "Liste de présence – Culte du dimanche"
+    }
+    titre = titres.get(jour, "Liste de présence de Bloom")
+
+    # ======================
+    # AFFICHAGE PRINCIPAL
+    # ======================
+    st.markdown(f"<h1 style='color:orange'>{titre}</h1>", unsafe_allow_html=True)
+    st.markdown(
+        f"<p style='color:white'>Date : {date.today().strftime('%d/%m/%Y')}</p>",
+        unsafe_allow_html=True
+    )
+    st.markdown(
+        "<p style='color:orange;font-weight:bold'>"
+        "Écrivez ici le nom des présents aujourd’hui (un par ligne)"
+        "</p>",
+        unsafe_allow_html=True
+    )
+
+    st.text_area("", height=180, key="saisie")
+
+    c1, c2 = st.columns(2)
+    valider = c1.button("Valider")
+    reset = c2.button("Réinitialiser")
+
+    if reset:
+        st.session_state.saisie = ""
+
+    # ======================
+    # TRAITEMENT
+    # ======================
+    if valider:
+
+        def clean(n):
+            return n.strip().capitalize()
+
+        presents = {
+            clean(n)
+            for n in st.session_state.saisie.split("\n")
+            if n.strip()
+        }
+
+        # PRÉSENTS PAR GROUPE
+        filles_p = filles & presents
+        garcons_p = garcons & presents
+        coachs_p = coachs & presents
+
+        # ABSENTS (LOGIQUE CORRECTE)
+        filles_abs = filles - filles_p
+        garcons_abs = garcons - garcons_p
+        coachs_abs = coachs - coachs_p
+
+        # ======================
+        # LISTE COPIABLE
+        # ======================
+        texte = (
+            f"{titre}\n"
+            f"Date : {date.today().strftime('%d/%m/%Y')}\n\n"
+            "PRÉSENTS\n"
+        )
+
+        texte += "\n".join(f"🟢 {n}" for n in sorted(presents)) if presents else "Aucun"
+
+        texte += "\n\nABSENTS\n"
+        texte += "\n".join(
+            f"🔴 {n}" for n in sorted(filles_abs | garcons_abs)
+        ) if (filles_abs or garcons_abs) else "Aucun"
+
+        texte += "\n\nABSENTS COACHS\n"
+        texte += "\n".join(f"🔴 {n}" for n in sorted(coachs_abs)) if coachs_abs else "Aucun"
+
+        texte += (
+            "\n\nTOTAUX PRÉSENTS\n"
+            f"Filles : {len(filles_p)}\n"
+            f"Garçons : {len(garcons_p)}"
+        )
+
+        st.text_area("Liste finale (copiable)", texte, height=450)
