@@ -1,8 +1,9 @@
 import streamlit as st
-from datetime import date
+from datetime import date, datetime
+import os
 
 # ==================================================
-# CONFIG PAGE (DOIT ÊTRE TOUT EN HAUT)
+# CONFIG PAGE
 # ==================================================
 st.set_page_config(
     page_title="ROC – Liste de présence",
@@ -18,35 +19,19 @@ st.markdown("""
     background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
     color: white;
 }
-
-/* Titre principal */
-h1 {
-    color: #2ecc71 !important;
-}
-
-/* Sous-titres (pupitres) */
+h1 { color: #2ecc71 !important; }
 h2, h3 {
     color: #ffd27f !important;
     font-size: 1.1rem !important;
     text-transform: uppercase;
-    letter-spacing: 1px;
 }
-
-/* Texte normal */
-p, label {
-    color: white !important;
-    font-size: 1rem !important;
-}
-
-/* Boutons */
+p, label { color: white !important; }
 button {
     background-color: #2ecc71 !important;
     color: black !important;
     font-weight: bold !important;
     border-radius: 8px !important;
 }
-
-/* Bouton copier (bleu visuel) */
 .copy-btn {
     background-color: #3498db !important;
     color: white !important;
@@ -59,42 +44,51 @@ button {
 """, unsafe_allow_html=True)
 
 # ==================================================
-# ÉTAT SESSION (ACCUEIL)
+# SESSION STATES
 # ==================================================
 if "entree" not in st.session_state:
     st.session_state.entree = False
+
+if "admin" not in st.session_state:
+    st.session_state.admin = False
 
 # ==================================================
 # ÉCRAN DE BIENVENUE
 # ==================================================
 if not st.session_state.entree:
     st.markdown("""
-    <div style="display:flex;
-                flex-direction:column;
-                justify-content:center;
-                align-items:center;
+    <div style="display:flex;flex-direction:column;
+                justify-content:center;align-items:center;
                 height:80vh;">
         <h1>Bienvenue au ROC 🎹</h1>
-        <p style="font-size:1.2rem;">
-            Application officielle de liste de présence
-        </p>
+        <p>Application officielle de liste de présence</p>
     </div>
     """, unsafe_allow_html=True)
 
     if st.button("Entrer"):
         st.session_state.entree = True
 
-    # IMPORTANT : bloque le reste de l'app
     st.stop()
 
 # ==================================================
-# BASE DE DONNÉES (FIXE)
+# 🔐 ACCÈS ADMIN (MODIFS SEULEMENT)
+# ==================================================
+with st.expander("🔐 Zone administrateur (modifications)"):
+    code = st.text_input("Code admin", type="password")
+    if code == "ROC2025":
+        st.session_state.admin = True
+        st.success("Mode administrateur activé")
+    elif code:
+        st.error("Code incorrect")
+
+# ==================================================
+# BASE DE DONNÉES
 # ==================================================
 bdd = {
     "Respo": ["Gricha", "Rodrigue"],
     "Soprano": [
         "Chariette", "Ruth", "Rebeca", "Emmanuella",
-        "Irssa", "Maman Angèle", "Alice", "Sullyvan"
+        "Irssa", "Maman Angèle", "Alice"
     ],
     "Altos": [
         "Radegonde", "Emy-Grâce", "Nell", "Tessa",
@@ -108,98 +102,63 @@ bdd = {
         "Jaifry", "Lionnel", "Esdras",
         "Laure-Naïké", "Thierry", "Joyce"
     ],
-    "Son": ["Emmanuel"],
+    "Son": ["Emmanuel", "Sullyvan"],
 }
 
 # ==================================================
-# SEXE (UTILISÉ UNIQUEMENT POUR LES TOTAUX)
+# SEXE (SULLYVAN = FEMME PAR DÉFAUT)
 # ==================================================
 sexe = {
     "Gricha": "H", "Rodrigue": "H", "Jordan": "H",
     "Jaifry": "H", "Lionnel": "H", "Esdras": "H",
     "Thierry": "H", "Joyce": "H", "Emmanuel": "H",
-    # Tous les autres = femmes par défaut
 }
 
 # ==================================================
-# TITRE + DATE AUTOMATIQUE
+# TITRE
 # ==================================================
 st.markdown("<h1>Liste de présence – ROC</h1>", unsafe_allow_html=True)
-st.markdown(
-    f"<p>Date : {date.today().strftime('%d/%m/%Y')}</p>",
-    unsafe_allow_html=True
-)
-
+st.markdown(f"<p>Date : {date.today().strftime('%d/%m/%Y')}</p>", unsafe_allow_html=True)
 st.markdown("---")
 
 # ==================================================
-# SÉLECTION DES PRÉSENTS (CLIC UNIQUEMENT)
+# SÉLECTION DES PRÉSENTS
 # ==================================================
-st.markdown("### Sélectionnez les présents puis cliquez sur **Valider**")
-
 selection = {}
 
 for pupitre, noms in bdd.items():
     st.subheader(pupitre)
-    selection[pupitre] = st.multiselect(
-        label="",
-        options=noms,
-        key=pupitre
-    )
+    selection[pupitre] = st.multiselect("", noms, key=pupitre)
 
 # ==================================================
-# VALIDATION
+# VALIDATION + SAUVEGARDE
 # ==================================================
 if st.button("Valider la liste"):
 
-    # Présents
-    presents = {nom for noms in selection.values() for nom in noms}
-
-    # Tous les noms
-    tous = {nom for noms in bdd.values() for nom in noms}
-
-    # Absents
+    presents = {n for noms in selection.values() for n in noms}
+    tous = {n for noms in bdd.values() for n in noms}
     absents = sorted(tous - presents)
+
+    hommes = sum(1 for n in presents if sexe.get(n) == "H")
+    femmes = len(presents) - hommes
 
     st.markdown("---")
 
-    # ==============================
-    # AFFICHAGE PRÉSENTS PAR PUPITRE
-    # ==============================
     for pupitre, noms in selection.items():
         if noms:
             st.subheader(pupitre)
             for nom in noms:
                 st.markdown(f"🟢 {nom}")
 
-    # ==============================
-    # AFFICHAGE ABSENTS (SANS PUPITRE)
-    # ==============================
     st.subheader("Absents")
     for nom in absents:
         st.markdown(f"🔴 {nom}")
 
-    # ==============================
-    # TOTAUX (NUMÉRIQUES UNIQUEMENT)
-    # ==============================
-    hommes = 0
-    femmes = 0
-
-    for nom in presents:
-        if sexe.get(nom) == "H":
-            hommes += 1
-        else:
-            femmes += 1
-
-    st.markdown("---")
     st.subheader("Totaux des présents")
     st.markdown(f"Femmes : {femmes}")
     st.markdown(f"Hommes : {hommes}")
     st.markdown(f"Total : {len(presents)}")
 
-    # ==============================
-    # TEXTE FINAL COPIABLE
-    # ==============================
     texte = (
         f"Liste de présence – ROC\n"
         f"Date : {date.today().strftime('%d/%m/%Y')}\n\n"
@@ -223,13 +182,9 @@ if st.button("Valider la liste"):
         f"Total : {len(presents)}"
     )
 
-    st.text_area(
-        "📋 Liste finale (copiable)",
-        texte,
-        height=420
-    )
+    os.makedirs("sauvegardes", exist_ok=True)
+    fichier = f"sauvegardes/ROC_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.txt"
+    with open(fichier, "w", encoding="utf-8") as f:
+        f.write(texte)
 
-    st.markdown(
-        "<div class='copy-btn'>👉 Sélectionnez le texte ci-dessus et copiez</div>",
-        unsafe_allow_html=True
-    )
+    st.text_area("📋 Liste finale (copiable)", texte, height=420)
