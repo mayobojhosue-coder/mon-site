@@ -75,7 +75,7 @@ if not st.session_state.entree:
 # ==================================================
 with st.expander("🔐 Zone administrateur (modifications)"):
     code = st.text_input("Code admin", type="password")
-    if code == "gloria2025":
+    if code == "ROC2025":
         st.session_state.admin = True
         st.success("Mode administrateur activé")
     elif code:
