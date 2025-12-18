@@ -1,156 +1,235 @@
 import streamlit as st
 from datetime import date
 
-# ======================
-# CONFIG PAGE
-# ======================
-st.set_page_config(page_title="Bloom", layout="wide")
+# ==================================================
+# CONFIG PAGE (DOIT ÊTRE TOUT EN HAUT)
+# ==================================================
+st.set_page_config(
+    page_title="ROC – Liste de présence",
+    layout="wide"
+)
 
-# ======================
+# ==================================================
 # STYLE GLOBAL
-# ======================
+# ==================================================
 st.markdown("""
 <style>
 .stApp {
     background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    color: white;
 }
 
-textarea {
-    color: black !important;
-    font-size: 15px;
+/* Titre principal */
+h1 {
+    color: #2ecc71 !important;
 }
 
+/* Sous-titres (pupitres) */
+h2, h3 {
+    color: #ffd27f !important;
+    font-size: 1.1rem !important;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Texte normal */
+p, label {
+    color: white !important;
+    font-size: 1rem !important;
+}
+
+/* Boutons */
 button {
-    background-color: orange !important;
+    background-color: #2ecc71 !important;
+    color: black !important;
+    font-weight: bold !important;
+    border-radius: 8px !important;
+}
+
+/* Bouton copier (bleu visuel) */
+.copy-btn {
+    background-color: #3498db !important;
     color: white !important;
     font-weight: bold !important;
-    border: none !important;
+    border-radius: 8px !important;
+    padding: 8px 16px;
+    margin-top: 10px;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# ======================
-# ÉTAT INITIAL
-# ======================
-if "go" not in st.session_state:
-    st.session_state.go = False
+# ==================================================
+# ÉTAT SESSION (ACCUEIL)
+# ==================================================
+if "entree" not in st.session_state:
+    st.session_state.entree = False
 
-if "saisie" not in st.session_state:
-    st.session_state.saisie = ""
+# ==================================================
+# ÉCRAN DE BIENVENUE
+# ==================================================
+if not st.session_state.entree:
+    st.markdown("""
+    <div style="display:flex;
+                flex-direction:column;
+                justify-content:center;
+                align-items:center;
+                height:80vh;">
+        <h1>Bienvenue au ROC 🎹</h1>
+        <p style="font-size:1.2rem;">
+            Application officielle de liste de présence
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
 
-# ======================
-# MESSAGE BIENVENUE
-# ======================
-if not st.session_state.go:
-    st.markdown(
-        "<h1 style='text-align:center;color:white;'>Bienvenue sur l'app Bloom</h1>",
-        unsafe_allow_html=True
-    )
     if st.button("Entrer"):
-        st.session_state.go = True
-    # on AFFICHERA l'app au prochain rerun
-else:
+        st.session_state.entree = True
 
-    # ======================
-    # BASE DES NOMS (FIXE)
-    # ======================
-    filles = {
-        "Angèle","Camille","Helena","Joëlle","Josée","Julyahana","Ketlyn","Maïva",
-        "Mariska","Romaine","Méléa","Kenza","Ketsia","Chrismaëlla","Jade","Daliah"
-    }
+    # IMPORTANT : bloque le reste de l'app
+    st.stop()
 
-    garcons = {
-        "Arthur","Alain Emmanuel","Jhosue","Stephen","Darlick","Jéremie",
-        "Iknan","Ighal","Yvan","Evans","André","Karl Emmanuel"
-    }
+# ==================================================
+# BASE DE DONNÉES (FIXE)
+# ==================================================
+bdd = {
+    "Respo": ["Gricha", "Rodrigue"],
+    "Soprano": [
+        "Chariette", "Ruth", "Rebeca", "Emmanuella",
+        "Irssa", "Maman Angèle", "Alice", "Sullyvan"
+    ],
+    "Altos": [
+        "Radegonde", "Emy-Grâce", "Nell", "Tessa",
+        "Andréa", "Lydia", "Amandine", "Stessy", "Nady-Grâce"
+    ],
+    "Tenors": [
+        "Jaurès", "Christ", "Gloire", "Jadel",
+        "Harold", "Christ Joël", "Jordan"
+    ],
+    "Musiciens": [
+        "Jaifry", "Lionnel", "Esdras",
+        "Laure-Naïké", "Thierry", "Joyce"
+    ],
+    "Son": ["Emmanuel"],
+}
 
-    coachs = {
-        "Noelvine","Jean Junior","Valérie","Aurel"
-    }
+# ==================================================
+# SEXE (UTILISÉ UNIQUEMENT POUR LES TOTAUX)
+# ==================================================
+sexe = {
+    "Gricha": "H", "Rodrigue": "H", "Jordan": "H",
+    "Jaifry": "H", "Lionnel": "H", "Esdras": "H",
+    "Thierry": "H", "Joyce": "H", "Emmanuel": "H",
+    # Tous les autres = femmes par défaut
+}
 
-    # ======================
-    # TITRE SELON LE JOUR
-    # ======================
-    jour = date.today().weekday()
-    titres = {
-        2: "Liste de présence – MDP",
-        4: "Liste de présence – Réunion en ligne",
-        5: "Liste de présence – Réunion des jeunes",
-        6: "Liste de présence – Culte du dimanche"
-    }
-    titre = titres.get(jour, "Liste de présence de Bloom")
+# ==================================================
+# TITRE + DATE AUTOMATIQUE
+# ==================================================
+st.markdown("<h1>Liste de présence – ROC</h1>", unsafe_allow_html=True)
+st.markdown(
+    f"<p>Date : {date.today().strftime('%d/%m/%Y')}</p>",
+    unsafe_allow_html=True
+)
 
-    # ======================
-    # AFFICHAGE PRINCIPAL
-    # ======================
-    st.markdown(f"<h1 style='color:orange'>{titre}</h1>", unsafe_allow_html=True)
+st.markdown("---")
+
+# ==================================================
+# SÉLECTION DES PRÉSENTS (CLIC UNIQUEMENT)
+# ==================================================
+st.markdown("### Sélectionnez les présents puis cliquez sur **Valider**")
+
+selection = {}
+
+for pupitre, noms in bdd.items():
+    st.subheader(pupitre)
+    selection[pupitre] = st.multiselect(
+        label="",
+        options=noms,
+        key=pupitre
+    )
+
+# ==================================================
+# VALIDATION
+# ==================================================
+if st.button("Valider la liste"):
+
+    # Présents
+    presents = {nom for noms in selection.values() for nom in noms}
+
+    # Tous les noms
+    tous = {nom for noms in bdd.values() for nom in noms}
+
+    # Absents
+    absents = sorted(tous - presents)
+
+    st.markdown("---")
+
+    # ==============================
+    # AFFICHAGE PRÉSENTS PAR PUPITRE
+    # ==============================
+    for pupitre, noms in selection.items():
+        if noms:
+            st.subheader(pupitre)
+            for nom in noms:
+                st.markdown(f"🟢 {nom}")
+
+    # ==============================
+    # AFFICHAGE ABSENTS (SANS PUPITRE)
+    # ==============================
+    st.subheader("Absents")
+    for nom in absents:
+        st.markdown(f"🔴 {nom}")
+
+    # ==============================
+    # TOTAUX (NUMÉRIQUES UNIQUEMENT)
+    # ==============================
+    hommes = 0
+    femmes = 0
+
+    for nom in presents:
+        if sexe.get(nom) == "H":
+            hommes += 1
+        else:
+            femmes += 1
+
+    st.markdown("---")
+    st.subheader("Totaux des présents")
+    st.markdown(f"Femmes : {femmes}")
+    st.markdown(f"Hommes : {hommes}")
+    st.markdown(f"Total : {len(presents)}")
+
+    # ==============================
+    # TEXTE FINAL COPIABLE
+    # ==============================
+    texte = (
+        f"Liste de présence – ROC\n"
+        f"Date : {date.today().strftime('%d/%m/%Y')}\n\n"
+    )
+
+    for pupitre, noms in selection.items():
+        if noms:
+            texte += f"{pupitre}\n"
+            for nom in noms:
+                texte += f"🟢 {nom}\n"
+            texte += "\n"
+
+    texte += "Absents\n"
+    for nom in absents:
+        texte += f"🔴 {nom}\n"
+
+    texte += (
+        f"\nTotaux des présents\n"
+        f"Femmes : {femmes}\n"
+        f"Hommes : {hommes}\n"
+        f"Total : {len(presents)}"
+    )
+
+    st.text_area(
+        "📋 Liste finale (copiable)",
+        texte,
+        height=420
+    )
+
     st.markdown(
-        f"<p style='color:white'>Date : {date.today().strftime('%d/%m/%Y')}</p>",
+        "<div class='copy-btn'>👉 Sélectionnez le texte ci-dessus et copiez</div>",
         unsafe_allow_html=True
     )
-    st.markdown(
-        "<p style='color:orange;font-weight:bold'>"
-        "Écrivez ici le nom des présents aujourd’hui (un par ligne)"
-        "</p>",
-        unsafe_allow_html=True
-    )
-
-    st.text_area("", height=180, key="saisie")
-
-    c1, c2 = st.columns(2)
-    valider = c1.button("Valider")
-    reset = c2.button("Réinitialiser")
-
-    if reset:
-        st.session_state.saisie = ""
-
-    # ======================
-    # TRAITEMENT
-    # ======================
-    if valider:
-
-        def clean(n):
-            return n.strip().capitalize()
-
-        presents = {
-            clean(n)
-            for n in st.session_state.saisie.split("\n")
-            if n.strip()
-        }
-
-        # PRÉSENTS PAR GROUPE
-        filles_p = filles & presents
-        garcons_p = garcons & presents
-        coachs_p = coachs & presents
-
-        # ABSENTS (LOGIQUE CORRECTE)
-        filles_abs = filles - filles_p
-        garcons_abs = garcons - garcons_p
-        coachs_abs = coachs - coachs_p
-
-        # ======================
-        # LISTE COPIABLE
-        # ======================
-        texte = (
-            f"{titre}\n"
-            f"Date : {date.today().strftime('%d/%m/%Y')}\n\n"
-            "PRÉSENTS\n"
-        )
-
-        texte += "\n".join(f"🟢 {n}" for n in sorted(presents)) if presents else "Aucun"
-
-        texte += "\n\nABSENTS\n"
-        texte += "\n".join(
-            f"🔴 {n}" for n in sorted(filles_abs | garcons_abs)
-        ) if (filles_abs or garcons_abs) else "Aucun"
-
-        texte += "\n\nABSENTS COACHS\n"
-        texte += "\n".join(f"🔴 {n}" for n in sorted(coachs_abs)) if coachs_abs else "Aucun"
-
-        texte += (
-            "\n\nTOTAUX PRÉSENTS\n"
-            f"Filles : {len(filles_p)}\n"
-            f"Garçons : {len(garcons_p)}"
-        )
-
-        st.text_area("Liste finale (copiable)", texte, height=450)
