@@ -1,4 +1,5 @@
-import streamlit as st
+
+   import streamlit as st
 from datetime import date, datetime
 import os
 
@@ -82,7 +83,7 @@ with st.expander("🔐 Zone administrateur (modifications)"):
         st.error("Code incorrect")
 
 # ==================================================
-# BASE DE DONNÉES (CORRIGÉE)
+# BASE DE DONNÉES
 # ==================================================
 bdd = {
     "Respo": ["Gricha", "Rodrigue", "Yeni"],
@@ -107,7 +108,7 @@ bdd = {
 }
 
 # ==================================================
-# SEXE (SULLYVAN = FEMME PAR DÉFAUT)
+# SEXE
 # ==================================================
 sexe = {
     "Gricha": "H", "Rodrigue": "H", "Jordan": "H",
@@ -190,5 +191,6 @@ if st.button("Valider la liste"):
         f.write(texte)
 
     st.text_area("📋 Liste finale (copiable)", texte, height=420)
+
 
    
