@@ -101,10 +101,10 @@ bdd = {
         "Harold", "Christian Joël", "Jordan"
     ],
     "Musiciens": [
-        "Jaifry", "Lionnel", "Esdras",
+        "Jaifry", "Lionnel",
         "Laure-Naïké", "Thierry", "Joyce"
     ],
-    "Son": ["Emmanuel", "Sullyvan"],
+    "Son": ["Emmanuel"],
 }
 
 # ==================================================
