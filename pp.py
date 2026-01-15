@@ -69,8 +69,8 @@ bdd = {
     "Soprano": ["Chariette", "Ruth", "Rebeca", "Emmanuella", "Irssa", "Maman Angèle"],
     "Altos": ["Radegonde", "Emy-Grâce", "Nell", "Tessa", "Andréa", "Lydia", "Amandine", "Stessy", "Nady-Grâce", "Dalie Clara", "Alice"],
     "Tenors": ["Jaurès", "Christ", "Gloire", "Jadel", "Harold", "Christian Joël", "Jordan"],
-    "Musiciens": ["Jaifry", "Lionnel", "Esdras", "Laure-Naïké", "Thierry", "Joyce"],
-    "Son": ["Emmanuel", "Sullyvan"]
+    "Musiciens": ["Jaifry", "Lionnel", "Laure-Naïké", "Thierry", "Joyce"],
+    "Son": ["Emmanuel"]
 }
 
 sexe = {
@@ -186,3 +186,4 @@ if st.button("Valider la liste"):
     texte += f"\nTotaux des présents\nFemmes : {femmes}\nHommes : {hommes}\nTotal : {len(presents)}"
 
     st.text_area("📋 Liste finale (copiable)", texte, height=420)
+
